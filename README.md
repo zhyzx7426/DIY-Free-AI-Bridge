@@ -3,7 +3,7 @@
 
 ## 目录
 1. [项目介绍](docs/intro.md)
-2. [Cloudflare Worker 使用说明](docs/cloudflare-worker/usage.md)
+2. [Cloudflare Worker 使用说明](docs/cloudflare-worker/overview.md)
 3. [iOS 快捷指令使用说明](docs/ios-shortcut/usage.md)
 
 ## 快速开始
