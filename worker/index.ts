@@ -82,8 +82,11 @@ export default {
 async function handleMultipart(form: FormData) {
   const file = form.get("image") as File | null;
   const text = (form.get("text") as string) ?? "";
-  const model = (form.get("model") as string) ?? "default-model";
-  const stream = form.get("stream") === "true";
+
+  const model = form.get("model") as string | null;
+  if (!model) throw new Error("Missing required \"model\" parameter.");
+
+  const stream = form.get("stream") !== "false";
 
   if (file && file.size > 10 * 1024 * 1024) throw new Error("File size exceeds 10MB limit.");
 
@@ -101,21 +104,30 @@ async function handleMultipart(form: FormData) {
 function handleFormUrlEncoded(params: URLSearchParams) {
   const text = params.get("text") ?? params.get("prompt") ?? "";
   if (!text) throw new Error("Missing text input.");
-  const model = params.get("model") ?? "default-model";
-  const stream = params.get("stream") === "true";
+
+  const model = params.get("model");
+  if (!model) throw new Error("Missing required \"model\" parameter.");
+
+  const stream = params.get("stream") !== "false";
+
   return { model, stream, messages: [{ role: "user", content: text }] };
 }
 
 function handleJson(json: any) {
+  if (!json.model) throw new Error("Missing required \"model\" parameter.");
+
+  const stream = json.stream !== false;
+
   if (Array.isArray(json.messages)) {
-    const { provider: _ignored, ...rest } = json;
-    return rest;
+    const { provider: _ignored, stream: _ignoredStream, ...rest } = json;
+    return { ...rest, stream };
   }
+
   const text = json.text ?? json.prompt ?? "";
   if (!text) throw new Error("Missing text or messages.");
   return {
-    model: json.model ?? "default-model",
-    stream: json.stream === true,
+    model: json.model,
+    stream,
     messages: [{ role: "user", content: text }]
   };
 }
